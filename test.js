@@ -54,3 +54,12 @@ test('gunzip', (t) => {
 
   gunzip.on('data', (data) => t.alike(data, Buffer.from('hello\n')))
 })
+
+test.solo('gunzipSync', (t) => {
+  t.plan(1)
+
+  const file = fs.readFileSync('test/fixtures/hello.txt.gz')
+  const d = zlib.gunzipSync(file)
+  console.log(d)
+
+})

@@ -181,3 +181,33 @@ exports.Gunzip = class ZlibGunzipStream extends ZlibStream {
 exports.createGunzip = function createGunzip (opts) {
   return new exports.Gunzip(opts)
 }
+
+exports.gunzipSync = function gunzipSync (data, opts) {
+  const gunzip =  new exports.Gunzip(opts)
+  
+  const output = [];
+  let error = null;
+  let done = false;
+
+  gunzip.on('data', chunk => output.push(chunk));
+  gunzip.on('error', err => {
+    error = err;
+    done = true;
+  });
+  gunzip.on('end', () => { done = true; });
+
+  gunzip.end(data);
+
+  const start = Date.now();
+  while (!done) {
+    if (Date.now() - start > 10000) { // 10 seconds timeout
+      throw new Error('gunzipSync: operation timed out');
+    }
+  }
+
+  if (error) throw error;
+  return Buffer.concat(output);
+
+
+
+}
